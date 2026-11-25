@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CNN Clone – Breaking News</title>
+<style>
+:root{--bg:#fff;--fg:#0c0c0c;--mut:#5f6368;--line:#e1e1e1;--card:#f6f6f6;--red:#cc0000;--link:#cc0000;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121212;--fg:#f2f2f2;--mut:#a0a4a8;--line:#2e2e2e;--card:#1c1c1c;--link:#ff5252;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121212;--fg:#f2f2f2;--mut:#a0a4a8;--line:#2e2e2e;--card:#1c1c1c;--link:#ff5252;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 "Helvetica Neue",Arial,sans-serif}
+a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}
+.top{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:10}
+.bar{max-width:1200px;margin:auto;display:flex;align-items:center;gap:14px;padding:10px 16px}
+.logo{background:var(--red);color:#fff;font:900 26px/1 Arial Black,Arial,sans-serif;letter-spacing:-1px;padding:6px 10px 5px;border-radius:2px}
+.sp{flex:1}
+.ib{background:none;border:1px solid var(--line);color:var(--fg);border-radius:20px;padding:6px 12px;font-size:14px}
+.ib:hover,.ib:focus-visible{border-color:var(--red)}
+#q{display:none;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:20px;padding:7px 14px;width:220px;font-size:14px}
+#q.on{display:block}
+nav{max-width:1200px;margin:auto;display:flex;gap:2px;overflow-x:auto;padding:0 10px;scrollbar-width:none}
+nav a{padding:10px 12px;font-weight:700;font-size:14px;white-space:nowrap;border-bottom:3px solid transparent}
+nav a:hover{color:var(--link)}nav a.act{border-color:var(--red);color:var(--link)}
+.tick{background:var(--red);color:#fff;font-size:14px;display:flex;overflow:hidden}
+.tick b{background:#000;padding:7px 14px;white-space:nowrap}
+.tick div{padding:7px 14px;white-space:nowrap;animation:in .5s}
+@keyframes in{from{opacity:0;transform:translateY(6px)}}
+main{max-width:1200px;margin:auto;padding:20px 16px 40px}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;line-height:1.15;margin:0}
+.grid{display:grid;grid-template-columns:2fr 1fr;gap:28px}
+.hero{position:relative;cursor:pointer}
+.img{aspect-ratio:16/9;border-radius:3px;display:flex;align-items:flex-end;padding:10px;color:rgba(255,255,255,.85);font-size:12px;font-weight:700}
+.hero h1{font-size:clamp(28px,4vw,42px);margin:12px 0 6px}
+.hero p{color:var(--mut);margin:0}
+.tag{color:var(--link);font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+.meta{color:var(--mut);font-size:12px}
+.side{border-left:1px solid var(--line);padding-left:24px}
+.side h3,.sec h2{font-size:20px;border-top:3px solid var(--red);padding-top:8px;margin-bottom:12px}
+.item{padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.item h3{font-size:18px;margin:3px 0}
+.item:hover h3,.card:hover h3{color:var(--link)}
+.sec{margin-top:36px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:22px}
+.card{cursor:pointer}.card h3{font-size:19px;margin:8px 0 4px}
+.art{max-width:720px;margin:auto}
+.art h1{font-size:clamp(30px,5vw,46px);margin:8px 0 12px}
+.art .lede{font-size:20px;color:var(--mut);font-family:Georgia,serif}
+.art p{font-family:Georgia,serif;font-size:19px;line-height:1.7}
+.back{background:none;border:0;color:var(--link);font-weight:700;padding:0 0 12px}
+.share{display:flex;gap:8px;margin:14px 0}
+.empty{padding:50px 0;text-align:center;color:var(--mut)}
+footer{border-top:1px solid var(--line);background:var(--card);padding:30px 16px;color:var(--mut);font-size:13px}
+.fi{max-width:1200px;margin:auto;display:flex;gap:20px;flex-wrap:wrap;align-items:center}
+.nl{display:flex;gap:6px}.nl input{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg)}
+.nl button{background:var(--red);color:#fff;border:0;border-radius:4px;padding:8px 14px;font-weight:700}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#000;color:#fff;padding:10px 18px;border-radius:6px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .25s}
+#toast.on{opacity:1}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.side{border:0;padding:0}#q{width:130px}}
+@media(prefers-reduced-motion:reduce){.tick div{animation:none}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="bar">
+    <a href="#home" class="logo" aria-label="Home">CNN</a>
+    <span class="meta" id="date"></span><span class="sp"></span>
+    <input id="q" type="search" placeholder="Search news" aria-label="Search">
+    <button class="ib" id="sb" aria-label="Search">Search</button>
+    <button class="ib" id="tb" aria-label="Toggle dark mode">Dark</button>
+  </div>
+  <nav id="nav"></nav>
+</header>
+<div class="tick"><b>BREAKING</b><div id="tk"></div></div>
+<main id="app"></main>
+<footer><div class="fi"><strong>Get the morning briefing</strong>
+<form class="nl" id="nl"><input type="email" required placeholder="Email address" aria-label="Email"><button>Subscribe</button></form>
+<span>Demo site with fictional stories. Not affiliated with any news organization.</span></div></footer>
+<div id="toast"></div>
+<script>
+const CATS=["World","US","Politics","Business","Tech","Health","Science","Sports","Entertainment"];
+const COL={World:["#0b3d91","#1b6ec2"],US:["#7a1f2b","#c0392b"],Politics:["#3b2a6b","#7a4fc2"],Business:["#0d5c3e","#27ae60"],Tech:["#1b2a41","#324a5f"],Health:["#8e2457","#e0568a"],Science:["#0a4d68","#088395"],Sports:["#b34700","#f39c12"],Entertainment:["#5b2a86","#d35db0"]};
+const L=(s)=>s.split("|").map(p=>"<p>"+p+"</p>").join("");
+const A=[
+["World","Leaders reach framework deal after marathon summit talks","Negotiators say the agreement on shared energy supplies could ease tensions across three regions.","Delegates from 24 countries worked through the night to finalize a framework covering energy supply, shipping lanes and border security.|Officials cautioned that details remain to be ratified by national legislatures, a process that could take several months.|Analysts called the outcome more substantial than expected, noting that both sides made concessions on long-standing disputes.",12],
+["Business","Markets rally as inflation cools for the fourth straight month","Stocks closed higher as lower consumer prices raised hopes of an interest rate cut.","Major indexes finished the day up more than one percent, led by technology and consumer stocks.|Economists said the slowdown in price growth gives central bankers room to hold rates steady or begin easing.|Bond yields fell, and the dollar slipped against a basket of major currencies.",25],
+["Tech","New open-source AI model rivals the biggest labs at a fraction of the cost","Researchers released a compact model that runs on consumer laptops.","The team behind the release said it was trained on a curated dataset and optimized for efficient inference.|Early benchmarks show competitive results on reasoning and coding tasks, though independent verification is ongoing.|Developers have already begun building local-first apps on top of it.",40],
+["Sports","Underdogs stun the champions in overtime thriller","A last-second basket forced overtime and sent the home crowd into a frenzy.","The visitors trailed by 14 points entering the final quarter before mounting one of the season's biggest comebacks.|The game-winning shot came with 1.8 seconds left in overtime.|The coach praised the team's resilience in the post-game press conference.",55],
+["Health","Study links daily walking to lower risk of heart disease","A large analysis found benefits at just 7,000 steps a day.","Researchers followed more than 40,000 adults over a decade and found steady gains up to roughly 7,000 steps daily.|Experts say the findings are encouraging for people who find intense workouts out of reach.|Doctors still recommend a balanced diet and regular checkups.",70],
+["Science","Telescope captures clearest image yet of a distant planet-forming disk","The image reveals gaps carved by young planets around a star 400 light years away.","Astronomers described the image as a milestone in understanding how solar systems are born.|The disk shows multiple rings, each possibly shaped by an infant planet clearing its orbit.|Follow-up observations are planned for next year.",90],
+["Politics","Lawmakers advance bipartisan infrastructure and permitting package","The bill would speed approval of transmission lines and transit projects.","The measure cleared a key committee with support from both parties after weeks of negotiations.|Supporters say it will cut years off project timelines; critics worry about environmental review.|A floor vote is expected before the end of the session.",110],
+["Entertainment","Surprise indie film sweeps festival awards","A low-budget drama about a family bakery took the top prize.","Critics praised the film's quiet performances and patient storytelling.|The director thanked the cast, who worked for deferred pay during a 24-day shoot.|A wide release is planned for early next year.",130],
+["US","Cities test free public transit as ridership recovers","Pilot programs show higher ridership and fewer cars downtown.","Three mid-sized cities reported double-digit increases in weekday riders since fares were removed.|Officials say funding remains the main hurdle for making the programs permanent.|Local businesses reported modest gains in foot traffic.",150],
+["Tech","Battery breakthrough promises electric cars that charge in ten minutes","Lab tests show a new anode design that survives thousands of fast charges.","Engineers said the design reduces heat buildup, the main limit on fast charging.|Commercial production is still years away.|Automakers have expressed interest in licensing the technology.",170],
+["Business","Retailers brace for record online holiday spending","Forecasters expect a busy shopping weekend as discounts start early.","Analysts predict online sales will climb about eight percent over last year.|Warehouses are hiring seasonal staff to keep up with demand.|Shoppers are advised to watch for delivery cutoffs.",190],
+["World","Heavy rains ease drought across the southern plains","Reservoirs are recovering after months of dangerously low levels.","Meteorologists said the storm system delivered a month of rain in just three days.|Farmers welcomed the moisture but warned of flooding in low-lying fields.|Authorities urged residents to avoid flooded roads.",210],
+["Sports","Veteran sprinter breaks national record at 34","The race stunned spectators and rewrote the record books.","She crossed the line in a personal best, shaving two hundredths off the old mark.|She credited a new training plan and a strong support team.|She now targets the world championships.",230],
+["Health","Sleep researchers say a consistent bedtime matters more than total hours","New findings suggest regularity predicts better mood and focus.","Participants with steady sleep schedules reported fewer mood swings.|Experts recommend setting a fixed wake time and dimming screens in the evening.|More research is needed on shift workers.",250],
+["Science","Archaeologists uncover 2,000-year-old marketplace beneath city streets","Stalls, coins and pottery reveal a bustling trade hub.","Teams uncovered dozens of stalls in remarkably good condition.|Coins from several distant regions point to wide trade networks.|The site will open to visitors next spring.",270]
+].map((a,i)=>({id:"a"+i,cat:a[0],h:a[1],s:a[2],b:a[3],m:a[4]}));
+const T=["Leaders reach framework deal after summit talks","Markets rally as inflation cools again","Heavy rains ease drought across southern plains","Underdogs stun champions in overtime thriller"];
+const $=s=>document.querySelector(s),app=$("#app");
+const ago=m=>m<60?m+" min ago":Math.floor(m/60)+" hr ago";
+const img=(a,c="")=>`<div class="img ${c}" style="background:linear-gradient(135deg,${COL[a.cat][0]},${COL[a.cat][1]})">${a.cat}</div>`;
+const card=a=>`<div class="card" tabindex="0" data-id="${a.id}">${img(a)}<span class="tag">${a.cat}</span><h3>${a.h}</h3><div class="meta">${ago(a.m)}</div></div>`;
+const item=a=>`<div class="item" tabindex="0" data-id="${a.id}"><span class="tag">${a.cat}</span><h3>${a.h}</h3><div class="meta">${ago(a.m)}</div></div>`;
+let query="";
+function render(){
+  const h=(location.hash||"#home").slice(1);
+  $("#nav").innerHTML=["Home",...CATS].map(c=>`<a href="#${c.toLowerCase()}" class="${h===c.toLowerCase()?"act":""}">${c}</a>`).join("");
+  let html="";
+  const art=A.find(a=>a.id===h);
+  if(query){
+    const r=A.filter(a=>(a.h+a.s+a.b).toLowerCase().includes(query.toLowerCase()));
+    html=`<div class="sec" style="margin:0"><h2>${r.length} result${r.length==1?"":"s"} for “${query.replace(/</g,"&lt;")}”</h2>${r.length?`<div class="cards">${r.map(card).join("")}</div>`:'<div class="empty">No stories match. Try a different keyword.</div>'}</div>`;
+  }else if(art){
+    const rel=A.filter(a=>a.cat===art.cat&&a.id!==art.id).slice(0,3);
+    html=`<div class="art"><button class="back" onclick="history.back()">← Back</button><span class="tag">${art.cat}</span><h1>${art.h}</h1><div class="meta">By Staff Reporter · Updated ${ago(art.m)} · ${Math.ceil(art.b.split(" ").length/200)+1} min read</div><div class="share"><button class="ib" id="cp">Copy link</button><button class="ib" id="sv">${saved().includes(art.id)?"Saved ✓":"Save"}</button></div>${img(art)}<p class="lede">${art.s}</p>${L(art.b)}${rel.length?`<div class="sec"><h2>More in ${art.cat}</h2><div class="cards">${rel.map(card).join("")}</div></div>`:""}</div>`;
+  }else if(h==="home"||!CATS.map(c=>c.toLowerCase()).includes(h)){
+    const [f,...rest]=A;
+    html=`<div class="grid"><div class="hero" tabindex="0" data-id="${f.id}">${img(f)}<h1>${f.h}</h1><p>${f.s}</p><div class="meta">${ago(f.m)}</div></div><aside class="side"><h3>Latest</h3>${rest.slice(0,5).map(item).join("")}</aside></div>`;
+    CATS.forEach(c=>{const l=A.filter(a=>a.cat===c).slice(0,3);if(l.length)html+=`<section class="sec"><h2><a href="#${c.toLowerCase()}">${c}</a></h2><div class="cards">${l.map(card).join("")}</div></section>`});
+    const sv=saved();if(sv.length)html+=`<section class="sec"><h2>Saved stories</h2><div class="cards">${sv.map(id=>card(A.find(a=>a.id===id))).join("")}</div></section>`;
+  }else{
+    const c=CATS.find(c=>c.toLowerCase()===h),l=A.filter(a=>a.cat===c);
+    html=`<h1 style="margin-bottom:18px">${c}</h1>${l.length?`<div class="cards">${l.map(card).join("")}</div>`:'<div class="empty">No stories in this section yet.</div>'}`;
+  }
+  app.innerHTML=html;
+  const cp=$("#cp");if(cp)cp.onclick=()=>{navigator.clipboard?.writeText(location.href).catch(()=>{});toast("Link copied")};
+  const sv=$("#sv");if(sv)sv.onclick=()=>{let s=saved();s=s.includes(art.id)?s.filter(x=>x!==art.id):[...s,art.id];try{localStorage.setItem("sv",JSON.stringify(s))}catch(e){mem=s}render();toast("Updated saved stories")};
+}
+let mem=[];
+function saved(){try{return JSON.parse(localStorage.getItem("sv")||"[]")}catch(e){return mem}}
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),1800)}
+app.addEventListener("click",e=>{const t=e.target.closest("[data-id]");if(t){query="";$("#q").value="";location.hash=t.dataset.id;scrollTo(0,0)}});
+app.addEventListener("keydown",e=>{if(e.key==="Enter"){const t=e.target.closest("[data-id]");if(t)t.click()}});
+window.addEventListener("hashchange",()=>{query="";render()});
+$("#sb").onclick=()=>{const q=$("#q");q.classList.toggle("on");if(q.classList.contains("on"))q.focus();else{query="";q.value="";render()}};
+$("#q").oninput=e=>{query=e.target.value.trim();render()};
+$("#tb").onclick=()=>{const d=document.documentElement,dark=d.dataset.theme?d.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;d.dataset.theme=dark?"light":"dark";$("#tb").textContent=dark?"Dark":"Light"};
+$("#nl").onsubmit=e=>{e.preventDefault();e.target.reset();toast("Subscribed. Check your inbox.")};
+$("#date").textContent=new Date().toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
+let ti=0;const tk=$("#tk");function tick(){tk.style.animation="none";tk.offsetHeight;tk.style.animation="";tk.textContent=T[ti++%T.length]}tick();setInterval(tick,4500);
+render();
+</script>
+</body>
+</html>
